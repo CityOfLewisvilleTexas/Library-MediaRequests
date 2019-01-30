@@ -1,0 +1,186 @@
+[v-cloak] {
+	display: none;
+}
+
+* {
+	font-family: "Roboto", "Helvetica Neue", Helvetica, sans-serif;
+}
+
+nav .logo {
+	width: 36px;
+    display: inline-block;
+    height: 34px;
+    vertical-align: middle;
+    background-image: url(./assets/pmartin.svg);
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position: center;
+    opacity: 1;
+    margin: 0 16px;
+}
+
+nav .title {
+	font-size: 1.5rem;
+}
+
+main > div.row:first-child {
+	padding-top: 24px;
+}
+.filters {
+	padding-left: 16px;
+}
+.search-category {
+	margin: 0 !important;
+}
+
+.search-holder > div {
+    display: inline-block;
+}
+.search-holder input {
+	width: 260px !important;
+}
+.search-holder .input-field, .search-holder input, .search-holder select {
+	margin: 0 !important;
+	border: 0 !important
+}
+.search-holder {
+    min-width: 512px;
+    background-color: white;
+    border-radius: 500px;
+    display: inline-block;
+    padding: 0 44px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+    margin-right: 16px;
+}
+.check-holder {
+	display: inline-block;
+    margin-top: 16px;
+}
+
+.check-holder.left-align div {
+    display: inline-block;
+    margin-right: 32px;
+}
+
+th:nth-child(11), td:nth-child(11) {
+    max-width: 200px;
+    word-wrap: break-word;
+}
+
+th {
+	/*padding: 8px !important;*/
+	background-image: none !important;
+    background-color: white !important;
+    /*border-bottom: 4px solid grey !important;*/
+}
+
+td,th {
+	border-left: 1px solid rgba(0,0,0,0.05) !important;
+	border-right: 1px solid rgba(0,0,0,0.05) !important;
+	/*text-align: center !important;*/
+}
+
+tr td:first-child, tr th:first-child {
+    border-left: none !important;
+}
+tr td:last-child, tr th:last-child {
+    border-right: none !important;
+}
+
+tr td:nth-child(3), tr th:nth-child(3) {
+    width: 120px;
+}
+
+table {
+	/*border: 2px solid rgba(0,0,0,0.3) !important;*/
+}
+.google-visualization-table {
+    width: 100% !important;
+}
+
+td p.chip {
+    margin: 4px !important;
+    height: auto;
+    line-height: 26px;
+    white-space: nowrap;
+}
+
+tr.odds {
+	background-color: #f2f2f2;
+}
+
+tr.hov {
+	background-color: #cecece;
+}
+
+td > a:not(.btn) i {
+	padding: 0 16px;
+}
+
+.loader {
+    border: 6px solid #D1C4E9;
+    border-top: 6px solid #673AB7;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 2s linear infinite;
+    display: inline-block;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+#book-info-modal.modal,
+#valset-info-modal.modal {
+	width: 25% !important;
+}
+
+#duplicate-info-modal > .modal-content.center-align {
+    width: auto;
+}
+
+.modal {
+    width: 100% !important;
+}
+
+div > ul.collapsbile {
+    width: 100% !important;
+}
+
+div#dropdown {
+    top: 0;
+    right: 15%;
+    position: fixed;
+}
+
+.refresh-button.fixed-action-btn.right-align {
+    top: 0;
+    right: 30%;
+}
+
+ul#dropdown1.dropdown-content {
+    top: 60px !important;
+    width: 211.422px !important;
+}
+
+.short {height: 114px !important;}
+.tall {height: 150px !important;}
+
+.back-button > a {
+    border-radius: 50%;
+    height: 55px;
+    width: 5px;
+    position: fixed;
+    top: 4px;
+    right: 25px;
+}
+
+.back-button > a > i {
+    top: 13px;
+    position: fixed;
+    right: 22px;
+    font-size: 35px;
+}
+    

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Library Dashboard</title>
+    <!-- force no compatibility mode in IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta charset="utf-8" />
+    <!-- google fonts -->
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Product+Sans:400,400i,700,700i" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    
+    <!-- Vue -->
+    <script src="https://unpkg.com/vue/dist/vue.js"></script>
+    <!-- JQuery -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+
+    <!-- Latest compiled JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    
+    <!-- mobile friendly -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+    <!-- Tab Icon -->
+    <link rel="icon" type="image/x-icon" href="data:image/x-icon;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAcpJREFUOI2lkkFI02EYxn/vtz9L13IO5kojKkNaRjLFS0EIhkTQMQqE6hDzIISCHaJQqDZPQmF4MCrC8NQWQREdcocOQRh1KLEoCBS0Q2BJrs323+tFlv7/LgUfeC7f9/J83/O8j6gqm4FxHowk0nr5xL2Nq6qqi0NXXmg0Oqg3e57qWvcrKaUsxGNJTb2d5ZCtNLTspiLsp6P3mDjnSgoAdLUM66dfObYgWIClypG2WroHTsqGBADORG+rv6AYIANMe4RX7y8WBVwhOrG32secEQT4K3C0ttJt4dalZ0qFj+6+1lUe79wY0/Hnn8kt5CkDFoA9dUHszCKvv2e4cOogFkAw6CP1aIL04wndZRmsrRa5+UWmVAkVwK+QFwgoTH+Z44NHOBwqR4z8yyDWMKjzRtgR8FLuswD4/TNHPmtj24os+50xQmPTdq7dPy1FCyOJtGYLutaaNB5L8m58lnBB+WageV+QROpscc4COHe11bVfgHgsyeSbGbIGvnoEryr1jTXuEJ3obLurH3/8wQtEyjwEaraxMxKmM3H8/0V62J/Wl08mqd4f4kCkivMlfrba5HKnH8TH9Hr76Lrdd7JYJAF6R9vXf9GBJZZy+t+mJ2blAAAAAElFTkSuQmCC">
+
+  <!-- CSS Stylesheet -->
+  <link rel="stylesheet" type="text/css" href="stylesheet.css">
+
+
+</head>
+
+
+<!-- Load indicator function -->
+<body>
+  <div id= "pre-loader"></div>
+
+
+  <div id="app" style="display:none;" class="animate-bottom">
+
+  <header id = "top">
+    <h1><img id="col-logo" src="images/pmartin_copy.svg"/>Lewisville Library Media Requests Dashboard</h1> 
+  </header> 
+
+  
+  <a href= "http://apps.cityoflewisville.com/psofia/default.aspx?formnumber=66" target="_blank">
+   <button type="button" class="btn btn-success btn-circle btn-xl" id = "add-info"><i class="glyphicon glyphicon-plus"></i></button></a>
+
+<div class="btn-group">
+  <button class="btn btn-default btn-lg dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+    Sort By
+  <span class="caret"></span>
+  </button>
+  <ul class="dropdown-menu">
+    <li v-on:click="sortedDate">Date</li>
+    <li v-on:click= "sortedTitle">Title</li>
+    <li v-on:click="sortedColl">Collection</li>
+    <li v-if= "select === 'ALL'" v-on:click= "sortedSelect">Selector</li>
+    <li v-on:click= "sortedStaff">Staff Requested</li>
+  </ul>
+</div>
+   <table class="table table-striped" id="tbl-info">
+    <thead class="container">
+      <tr>
+
+        <th></th>
+        <th>Date Requested</th>
+        <th>Status</th>
+        <th>Title</th>
+        <th>Book Information</th>
+        <th>Collection</th>
+        <th>Selector</th>
+        <th>Staff Requested</th>
+        <th>Created By</th>
+        <th>Created Date</th>
+        <th>Edited By</th>
+        <th>Edited Date</th>
+        <th>Patron Name</th>
+        <th>Library Card Number</th>
+      </tr>
+    </thead>
+<tbody>
+
+  <tr v-for= "item in result">
+    
+    <!--Media edit button -->
+    <td><a :href="'http://apps.cityoflewisville.com/psofia/default.aspx?formnumber=66&record=' + item.psofia_recordid" target="_blank"><button type="button" class="btn btn-outline-secondary">Edit</button></a></td>
+     
+     <!--Status column check -->   
+    <td>{{item.daterequested}}</td>
+    <td><h4><span class="label label-primary" v-if = "item.sendtech === 'true'">Sent to Tech</span></h4>
+    <h4><span class="label label-warning" v-if = "item.standorder === 'true'">Standing Order</span></h4>
+    <h4><span class="label label-success" v-if = "item.selected === 'true'">Selected</span></h4></td>
+
+    <!-- <h4><span class="label label-default" v-if = "item.cancelled === 'true'">Cancelled</span></h4> -->
+   <!-- <h4><span class="label label-danger" v-if = "item.holdplaced === 'true'">Hold</span></h4></td> -->
+  
+    <td>{{item.itemtitle}}</td>
+
+    <td><button type="button" class="btn btn-info" data-toggle = "collapse" :data-target= "'#' + item.psofia_recordid"><span class="glyphicon glyphicon-book" aria-hidden="true"></span><br>See Info</button>
+  <div :id = "item.psofia_recordid" class="collapse">
+  <div class= "row">
+    <div class="col-md-8"><b>Author:</b> {{item.author}} </br></br> </div>
+    <div class="col-md-8"><b>ISBN:</b> {{item.isbn}} </br></br></div>
+    <div class="col-md-8"><b>Publish Date:</b> {{item.pubdate}} </br></br></div>
+    <div class="col-md-8"><b>Media Type:</b> {{item.mediatype_VSVal_}} </br></br></div>
+    </div>
+  </div>
+  
+  </td>
+    <td>{{item.collection_VSVal_}}</td>
+    <td>{{item.selector}}</td>
+    <td>{{item.staffrequesting}}</td>
+    <td>{{item.psofia_createdby}}</td>
+    <td>{{item.psofia_createddate}}</td>
+    <td>{{item.psofia_editedby}}</td>
+    <td>{{item.psofia_editeddate}}</td>
+    <td>{{item.patronname}}</td>
+    <td>{{item.librarycardnumber}}</td>
+  </tr>
+</tbody>
+</table>
+</div>
+</div>
+
+    <!-- source code -->
+    <script type="text/javascript" src="app.js?8"></script>  
+    
+</body>
+</html>

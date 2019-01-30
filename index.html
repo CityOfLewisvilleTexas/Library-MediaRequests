@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html class="grey lighten-4">
+
+<head>
+    <title>COL Media Requests</title>
+    <link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+    <!-- Vue -->
+    <script src="https://unpkg.com/vue/dist/vue.js"></script>
+    <script src="https://unpkg.com/vue-router/dist/vue-router.js"></script>
+    <!-- JQuery -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <!-- Materialize CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <!-- google icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!-- custom css -->
+    <link rel="stylesheet" src="style.css">
+    <!-- Materialize JS (dev / full) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
+   <!-- axios -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.18.0/axios.js"></script>
+    <!-- google table -->
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <!-- socket.io -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.4.5/socket.io.min.js"></script>
+    <!-- live-data.js -->
+<script src="http://apps.cityoflewisville.com/livedata/live-data.js"></script>
+
+<body>
+    <div id="app" v-cloak>
+        <div class="navbar-fixed">
+            <nav>
+                <div class="nav-wrapper indigo">
+                    <div class="logo"></div>
+                    <span class="title"><router-link to="/">Lewisville Library Media Requests Dashboard</router-link></span>
+                    <ul class="right" v-if="!selector">
+                        <li>
+                            <a href="http://apps.cityoflewisville.com/table-editor/?mask=collection-selectors" target="_blank">Collection Selectors</a>
+                        </li>
+                    </ul>
+
+                    <div id="dropdown" v-if="isAdmin">
+                        <a class='dropdown-trigger btn' href='#' data-target='dropdown1'>Admin Options</a>
+                            <ul id='dropdown1' class='dropdown-content'>
+                                <li>
+                                    <span style="white-space: nowrap;" data-target="valset-info-modal" class="modal-trigger">Edit Validation Sets</span>
+                                </li>
+                                <li>
+                                    <span style="white-space: nowrap;" data-target="duplicate-info-modal" class="modal-trigger">View Duplicate Requests</span>
+                                </li>
+                            </ul>
+                        </div>
+                </div>
+            </nav>
+        </div>
+        <main class="">
+            <!--Navbar sticky buttons-->
+            <div class="refresh-button fixed-action-btn right-align">
+                    <a class="waves-effect waves-light green btn" onclick="myData.refreshData()">refresh<i class="material-icons left refresh">refresh</i></a>
+            </div>
+            <!-- End -->
+
+            <div class="row left-align filters">
+                <div class="search-holder">
+                    <div class="input-field">
+                        <input type="search" :placeholder="'Search for ' + searchCategory + '...'" v-model="searchTerm" />
+                    </div>
+                    <div class="search-category">
+                        <select class="browser-default" v-model="searchCategory">
+                            <option value="" disabled>Choose your filter...</option>
+                            <option value="request date">Request Date</option>
+                            <option value="title">Title</option>
+                            <option value="collection">Collection</option>
+                            <option value="selector">Selector</option>
+                            <option value="staff requested">Staff Requested</option>
+                        </select>
+                        <!-- <label>Materialize Select</label> -->
+                    </div>
+                </div>
+                <!-- <br><br> -->
+                <div class="check-holder left-align">
+                    <div>
+                        <input class="filled-in" type="checkbox" id="all-status" v-model="status.all" />
+                        <label for="all-status">All</label>
+                    </div>
+                    <div>
+                        <input class="filled-in" type="checkbox" id="cancelled-status" v-model="status.cancelled" :disabled="status.all" />
+                        <label for="cancelled-status">Cancelled</label>
+                    </div>
+                    <div>
+                        <input class="filled-in" type="checkbox" id="hold-status" v-model="status.hold" :disabled="status.all" />
+                        <label for="hold-status">Placed Hold</label>
+                    </div>
+                    <div>
+                        <input class="filled-in" type="checkbox" id="tech-status" v-model="status.tech" :disabled="status.all" />
+                        <label for="tech-status">Send to Tech</label>
+                    </div>
+                    <div>
+                        <input class="filled-in" type="checkbox" id="standing-status" v-model="status.standing" :disabled="status.all" />
+                        <label for="standing-status">Standing Order</label>
+                    </div>
+                    <div>
+                        <input class="filled-in" type="checkbox" id="selected-status" v-model="status.selected" :disabled="status.all" />
+                        <label for="selected-status">Selected</label>
+                    </div>
+                </div>
+                   
+
+            </div>
+            <!-- <div class="row">
+                <select class="browser-default" v-model="sortBy">
+                    <option value="" disabled>Choose your filter...</option>
+                    <option value="request date">Request Date</option>
+                    <option value="title">Title</option>
+                    <option value="collection">Collection</option>
+                    <option value="selector">Selector</option>
+                    <option value="staff requested">Staff Requested</option>
+                </select>
+            </div> -->
+            <div class="row center-align" v-if="isLoading"><div class="loader"></div></div>
+            <div class="row" v-if="!isLoading">
+                <div class="col s12">
+                    <div class="card">
+                        <div class="card-content" id="table-container"></div>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <div id="duplicate-info-modal" class="modal">
+                <div class="modal-content center-align">
+                    <h5> Current Request Duplicates</h5>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>&nbsp;</th>
+                                    <th style="border-top:1px solid #fff; border-bottom: 1px solid #fff; background-color:#3f51b5 !important; color:white; font-weight:bold;">Title</th>
+                                    <th>Request Creator</th>
+                                    <th>Request Date</th>
+                                    <th>Author</th>
+                                    <th>Collection</th>
+                                    <th>Media Type</th>
+                                    <th>ISBN</th>
+                                    <th>Patron Card Number</th>
+                                    <th>Patron Name</th>
+                                    <th>Notes</th>
+                                    <th>Hold Placed?</th>
+                                    <th>Cancelled?</th>
+                                    <th>Removed?</th>
+                                    <th>Staff Name</th>
+                                    <th>Selector</th>
+                                </tr>
+                            </thead>
+                                <tr v-for="dupe in duplicates">
+                                    <td><b>{{dupe.ID || 'N/A' }}</b></td>
+                                    <td style="border-top:1px solid #fff; border-bottom: 1px solid #fff; background-color:#3f51b5; color:white; font-weight:bold;">{{dupe.Title || 'N/A' }}</td>
+                                    <td>{{dupe.Request_Creator || 'N/A' }}</td>
+                                    <td>{{dupe.Request_Date || 'N/A' }}</td>
+                                    <td>{{dupe.Author || 'N/A' }}</td>
+                                    <td>{{dupe._Collection || 'N/A' }}</td>
+                                    <td>{{dupe.TypeOfMedia || 'N/A' }}</td>
+                                    <td>{{dupe.ISBN || 'N/A' }}</td>
+                                    <td>{{dupe.LibraryCardNumber || 'N/A' }}</td>
+                                    <td>{{dupe.Patron_Name || 'N/A' }}</td>
+                                    <td>{{dupe.Notes || 'N/A' }}</td>
+                                    <td>{{dupe.isHoldPlaced == 'true' ? 'Yes' : 'No' || 'N/A' }}</td>
+                                    <td>{{dupe.isCancelled == 'true' ? 'Yes' : 'No' || 'N/A' }}</td>
+                                    <td>{{dupe.isRemoved == 'true' ? 'Yes' : 'No' || 'N/A' }}</td>
+                                    <td>{{dupe.StaffName || 'N/A' }}</td>
+                                    <td>{{dupe.Selector == null ? 'No Selector' : dupe.Selector || 'N/A'}}</td>
+                                </tr>
+                        </table>
+                </div>
+        <div class="modal-footer">
+            <a class="modal-action modal-close waves-effect btn-flat">Done</a>
+        </div>
+    </div>
+
+        <div id="book-info-modal" class="modal">
+            <div class="modal-content center-align">
+                <h5>{{ book.title || 'Book Information' }}</h5>
+                <div class="row"></div>
+                <div class="row">
+                    <div class="col s6 right-align"><b>Author:</b></div>
+                    <div class="col s6 left-align">{{ book.author || 'N/A' }}</div>
+                    <div class="col s6 right-align"><b>ISBN:</b></div>
+                    <div class="col s6 left-align">{{ book.isbn || 'N/A' }}</div>
+                    <div class="col s6 right-align"><b>Publish Date:</b></div>
+                    <div class="col s6 left-align">{{ book.published || 'N/A' }}</div>
+                    <div class="col s6 right-align"><b>Media Type:</b></div>
+                    <div class="col s6 left-align">{{ book.type || 'N/A' }}</div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a class="modal-action modal-close waves-effect btn-flat">Done</a>
+            </div>
+        </div>
+
+
+        <div id="valset-info-modal" class="modal">
+                <div class="modal-content center-align">
+                    <div>
+                        <ul class="collapsible" style="margin-left:auto;margin-right:auto;display:block">
+                            <li>
+                                <div class="collapsible-header"><a href="http://apps.cityoflewisville.com/psofia/editvalset/default.aspx?id=106" target="_blank"><i class="material-icons">person_outline</i>Library Collections - Adult</a></div>
+                            </li>
+                            <li>
+                                <div class="collapsible-header"><a href="http://apps.cityoflewisville.com/psofia/editvalset/default.aspx?id=116" target="_blank"><i class="material-icons">face</i>Library Collections - Teen</a></div>
+                            </li>
+                            <li>
+                                <div class="collapsible-header"><a href="http://apps.cityoflewisville.com/psofia/editvalset/default.aspx?id=117" target="_blank"><i class="material-icons">child_care</i>Library Collections - Children</a></div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <a class="modal-action modal-close waves-effect btn-flat">Done</a>
+                </div>
+            </div>
+
+        <div class="fixed-action-btn">
+            <a class="btn-floating btn-large red" href="http://apps.cityoflewisville.com/psofia/default.aspx?formnumber=66" target="_blank">
+              <i class="large material-icons">add</i>
+            </a>
+          </div>
+    </div>
+    <!-- source code -->
+    <script type="text/javascript" src="./moment/moment.js"></script>
+    <script type="text/javascript" src="app.js"></script>
+    <script> 
+            document.addEventListener('DOMContentLoaded', function() {
+            var elemsDropdown = document.querySelectorAll('.dropdown-trigger');
+            let optionsDropdown = document.querySelectorAll('#dropdown1 > li')
+            var instances = M.Dropdown.init(elemsDropdown, optionsDropdown);
+
+            var elems_dupes_modal = document.querySelectorAll('#duplicate-info-modal.modal');
+            let options_dupes_modal = document.querySelectorAll('#duplicate-info-modal')
+            var instances = M.Modal.init(elems_dupes_modal, options_dupes_modal);
+
+            var elems_valset_Modal = document.querySelectorAll('#valset-info-modal.modal');
+            let options_valset_Modal = document.querySelectorAll('#valset-info-modal')
+            var instances = M.Modal.init(elems_valset_Modal, options_valset_Modal);
+          });
+    </script>
+</body>
